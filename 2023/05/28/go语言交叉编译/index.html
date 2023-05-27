@@ -6,7 +6,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>  Blog |    XooHoo.</title>
+  <title>  Go语言交叉编译 |    XooHoo.</title>
   <meta name="description" content="Some Fucking Things .">
   <!-- 标签页图标 -->
   
@@ -117,57 +117,52 @@
 <div class="body-outer">
   <div class="body-inner">
     
+<article class="post-inner">
+  <div class="post-content-outer">
+    <div class="post-intro">
+      <div class="post-title animate__animated  animate__fadeInUp">go语言交叉编译</div>
+      <div class="meta-intro animate__animated  animate__fadeInUp">5月 28 2023</div>
+      
+    </div>
+    <div class="post-content-inner">
+      <div class="post-content-inner-space">
+
+      </div>
+      <div class="post-content-main animate__animated  animate__fadeInUp">
+        <!-- top型目录 -->
+        
+        <h2 id="go语言交叉编译"><a href="#go语言交叉编译" class="headerlink" title="go语言交叉编译"></a>go语言交叉编译</h2><h3 id="Mac-下编译-Linux-和-Windows-64位可执行程序"><a href="#Mac-下编译-Linux-和-Windows-64位可执行程序" class="headerlink" title="Mac 下编译 Linux 和 Windows 64位可执行程序"></a>Mac 下编译 Linux 和 Windows 64位可执行程序</h3><pre><code class="shell">CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go install
+CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go install
+CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go install
+</code></pre>
+<h3 id="Linux-下编译-Mac-和-Windows-64位可执行程序"><a href="#Linux-下编译-Mac-和-Windows-64位可执行程序" class="headerlink" title="Linux 下编译 Mac 和 Windows 64位可执行程序"></a>Linux 下编译 Mac 和 Windows 64位可执行程序</h3><pre><code class="shell">CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go install
+CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go install
+</code></pre>
+<h3 id="Windows-下编译-Mac-和-Linux-64位可执行程序"><a href="#Windows-下编译-Mac-和-Linux-64位可执行程序" class="headerlink" title="Windows 下编译 Mac 和 Linux 64位可执行程序"></a>Windows 下编译 Mac 和 Linux 64位可执行程序</h3><pre><code class="shell">SET CGO_ENABLED=0
+SET GOOS=darwin
+SET GOARCH=amd64
+go install
+SET CGO_ENABLED=0
+SET GOOS=linux
+SET GOARCH=amd64
+go install
+</code></pre>
+
+        <!-- 分类文章 -->
+        
+      </div>
+      <div class="post-content-inner-space">
+        
+          <div class="space-toc-main animate__animated  animate__fadeInUp">
+            <ol class="space-toc"><li class="space-toc-item space-toc-level-2"><a class="space-toc-link" href="#go%E8%AF%AD%E8%A8%80%E4%BA%A4%E5%8F%89%E7%BC%96%E8%AF%91"><span class="space-toc-text">go语言交叉编译</span></a></li></ol>
+           </div>
+        
+      </div>
+   </div>
+    <!-- 评论 -->
     
-<section class="img-show-outer">
-    <section class="img-show-inner">
-          
-          
-          <div class="img-show-post">
-            <div class="img-show-post-cover">
-              <span class="lazyload-img-span">
-              <a  href="/2023/05/28/go%E8%AF%AD%E8%A8%80%E4%BA%A4%E5%8F%89%E7%BC%96%E8%AF%91/">
-              
-                
-                <img data-src="https://cdn.jsdelivr.net/gh/fushaolei/cdn-white@1.0/cover/01.jpg" class="img-show-post-cover-class">
-              
-              </a>
-              </span>
-            </div>
-            <div class="img-show-post-intro">
-             <a  href="/2023/05/28/go%E8%AF%AD%E8%A8%80%E4%BA%A4%E5%8F%89%E7%BC%96%E8%AF%91/">
-            <div class="img-show-post-title animate__animated  animate__fadeInUp">go语言交叉编译</div>
-            </a>
-            <div class="img-show-post-date animate__animated  animate__fadeInUp">5月 28 2023 </div>
-            </div>
-          </div>
-          
-         
-          <div class="img-show-post">
-            <div class="img-show-post-cover">
-              <span class="lazyload-img-span">
-              <a  href="/2023/05/22/hello-world/">
-              
-                
-                <img data-src="https://cdn.jsdelivr.net/gh/fushaolei/cdn-white@1.0/cover/02.jpg" class="img-show-post-cover-class">
-              
-              </a>
-              </span>
-            </div>
-            <div class="img-show-post-intro">
-             <a  href="/2023/05/22/hello-world/">
-            <div class="img-show-post-title animate__animated  animate__fadeInUp">Hello World</div>
-            </a>
-            <div class="img-show-post-date animate__animated  animate__fadeInUp">5月 22 2023 </div>
-            </div>
-          </div>
-          
-         
-    </section>
-    
-</section>
-
-
-
+  </div>
+</article>
   </div>
 </div>
 
