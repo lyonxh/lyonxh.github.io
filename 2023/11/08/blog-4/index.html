@@ -6,7 +6,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>  Test |    Lyon.x</title>
+  <title>  Go生成随机token |    Lyon.x</title>
   <meta name="description" content="The Lives Of Lyon.x .">
   <!-- 标签页图标 -->
   
@@ -102,8 +102,8 @@
 <article class="post-inner">
   <div class="post-content-outer">
     <div class="post-intro">
-      <div class="post-title animate__animated  animate__fadeInUp">test</div>
-      <div class="meta-intro animate__animated  animate__fadeInUp">11月 07 2023</div>
+      <div class="post-title animate__animated  animate__fadeInUp">go生成随机token</div>
+      <div class="meta-intro animate__animated  animate__fadeInUp">11月 08 2023</div>
       
     </div>
     <div class="post-content-inner">
@@ -113,11 +113,15 @@
       <div class="post-content-main animate__animated  animate__fadeInUp">
         <!-- top型目录 -->
         
-        
+        <h2 id="随机token"><a href="#随机token" class="headerlink" title="随机token"></a>随机token</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> (</span><br><span class="line">    TokenLens <span class="type">int</span> = <span class="number">16</span></span><br><span class="line">)</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">GenerateTokens</span><span class="params">()</span></span> <span class="type">string</span> &#123;</span><br><span class="line">    rand.Seed(time.Now().UnixNano())</span><br><span class="line">    runes := []<span class="type">rune</span>(<span class="string">&quot;abcdefghijklmnopqrstuvwxyz0123456789&quot;</span>)</span><br><span class="line">    byteToken := <span class="built_in">make</span>([]<span class="type">rune</span>, TokenLens)</span><br><span class="line">    <span class="keyword">for</span> i := <span class="keyword">range</span> byteToken &#123;</span><br><span class="line">        byteToken[i] = runes[rand.Intn(<span class="built_in">len</span>(runes))]</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="type">string</span>(byteToken)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
         <!-- 分类文章 -->
         
       </div>
       <div class="post-content-inner-space">
+        
+          <div class="space-toc-main animate__animated  animate__fadeInUp">
+            <ol class="space-toc"><li class="space-toc-item space-toc-level-2"><a class="space-toc-link" href="#%E9%9A%8F%E6%9C%BAtoken"><span class="space-toc-text">随机token</span></a></li></ol>
+           </div>
         
       </div>
    </div>

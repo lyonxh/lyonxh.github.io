@@ -1,0 +1,181 @@
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>  Go时间操作 |    Lyon.x</title>
+  <meta name="description" content="The Lives Of Lyon.x .">
+  <!-- 标签页图标 -->
+  
+
+  <!-- 图标库 -->
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@2.2.0/fonts/remixicon.css" rel="stylesheet">
+  <!-- 动画库 -->
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fushaolei/cdn-white@1.0/css/animate.css"/>
+  
+  <!-- css文件 -->
+  
+<link rel="stylesheet" href="/css/white.css">
+
+  <!-- 代码高亮 -->
+  
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+
+<body>
+
+<div class="menu-outer">
+    <div class="menu-inner">
+      <div class="menu-site-name  animate__animated  animate__fadeInUp">
+        <a href="/">
+          Lyon.x
+        </a>
+        
+      </div>
+      <div class="menu-group">
+        <ul class="menu-ul">
+        
+          <a href="/" class="nav-link">
+            <li class="menu-li  animate__animated  animate__fadeInUp">
+              HOME
+            </li>
+          </a>
+        
+          <a href="/archives" class="nav-link">
+            <li class="menu-li  animate__animated  animate__fadeInUp">
+              BLOG
+            </li>
+          </a>
+        
+        
+        
+          <li class="menu-li animate__animated  animate__fadeInUp" id="mobile-menu">
+            <i class="ri-menu-line"></i>
+          </li>
+        
+        </ul>
+
+      </div>
+
+    </div>
+</div>
+<div id="mobile-main" class="animate__animated  animate__fadeIn">
+  <div class="mobile-menu-inner">
+    <div class="mobile-menu-site-name animate__animated  animate__fadeInUp">
+      <a href="/">
+        Lyon.x
+      </a>
+    </div>
+    <div class="mobile-menu-group" id="mobile-close">
+      <i class="ri-close-line"></i>
+    </div>
+
+  </div>
+
+  <div class="mobile-menu-div">
+  
+    <a href="/" class="mobile-nav-link">
+      <div class="mobile-menu-child animate__animated  animate__fadeInUp">
+        <span>HOME</span>
+      </div>
+    </a>
+  
+    <a href="/archives" class="mobile-nav-link">
+      <div class="mobile-menu-child animate__animated  animate__fadeInUp">
+        <span>BLOG</span>
+      </div>
+    </a>
+  
+  
+  </div>
+
+
+</div>
+
+<div class="body-outer">
+  <div class="body-inner">
+    
+<article class="post-inner">
+  <div class="post-content-outer">
+    <div class="post-intro">
+      <div class="post-title animate__animated  animate__fadeInUp">go时间操作</div>
+      <div class="meta-intro animate__animated  animate__fadeInUp">11月 08 2023</div>
+      
+    </div>
+    <div class="post-content-inner">
+      <div class="post-content-inner-space">
+
+      </div>
+      <div class="post-content-main animate__animated  animate__fadeInUp">
+        <!-- top型目录 -->
+        
+        <h2 id="获取当前时间"><a href="#获取当前时间" class="headerlink" title="获取当前时间"></a>获取当前时间</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">currentTime:=time.Now()     <span class="comment">//获取当前时间，类型是Go的时间类型Time</span></span><br><span class="line"></span><br><span class="line">t1:=time.Now().Year()        <span class="comment">//年</span></span><br><span class="line"></span><br><span class="line">t2:=time.Now().Month()       <span class="comment">//月</span></span><br><span class="line"></span><br><span class="line">t3:=time.Now().Day()         <span class="comment">//日</span></span><br><span class="line"></span><br><span class="line">t4:=time.Now().Hour()        <span class="comment">//小时</span></span><br><span class="line"></span><br><span class="line">t5:=time.Now().Minute()      <span class="comment">//分钟</span></span><br><span class="line"></span><br><span class="line">t6:=time.Now().Second()      <span class="comment">//秒</span></span><br><span class="line"></span><br><span class="line">t7:=time.Now().Nanosecond()  <span class="comment">//纳秒</span></span><br><span class="line">    </span><br><span class="line"><span class="comment">//如果获取UTC时间，则可以使用time.UTC</span></span><br><span class="line">currentTimeData:=time.Date(t1,t2,t3,t4,t5,t6,t7,time.Local) <span class="comment">//获取当前时间，返回当前时间Time     </span></span><br><span class="line"></span><br><span class="line">fmt.Println(currentTime)       <span class="comment">//打印结果：2017-04-11 12:52:52.794351777 +0800 CST</span></span><br><span class="line"></span><br><span class="line">fmt.Println(t1,t2,t3,t4,t5,t6)     <span class="comment">//打印结果：2017 April 11 12 52 52</span></span><br><span class="line"></span><br><span class="line">fmt.Println(currentTimeData)    <span class="comment">//打印结果：2017-04-11 12:52:52.794411287 +0800 CST</span></span><br></pre></td></tr></table></figure>
+<h2 id="获取当前时间戳"><a href="#获取当前时间戳" class="headerlink" title="获取当前时间戳"></a>获取当前时间戳</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">timeUnix:=time.Now().Unix()            <span class="comment">//单位s,打印结果:1491888244</span></span><br><span class="line">timeUnixNano:=time.Now().UnixNano()  <span class="comment">//单位纳秒,打印结果：1491888244752784461</span></span><br></pre></td></tr></table></figure>
+<h2 id="获取当前时间字符串格式"><a href="#获取当前时间字符串格式" class="headerlink" title="获取当前时间字符串格式"></a>获取当前时间字符串格式</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">timeStr:=time.Now().Format(<span class="string">&quot;2006-01-02 15:04:05&quot;</span>)  <span class="comment">//当前时间的字符串，2006-01-02 15:04:05据说是golang的诞生时间，固定写法</span></span><br><span class="line"> </span><br><span class="line">fmt.Println(timeStr)    <span class="comment">//打印结果：2017-04-11 13:24:04</span></span><br></pre></td></tr></table></figure>
+<h2 id="时间戳转时间字符串-int64-—-string"><a href="#时间戳转时间字符串-int64-—-string" class="headerlink" title="时间戳转时间字符串 (int64 —&gt;  string)"></a>时间戳转时间字符串 (int64 —&gt;  string)</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">timeUnix:=time.Now().Unix()   <span class="comment">//已知的时间戳</span></span><br><span class="line"></span><br><span class="line">formatTimeStr:=time.Unix(timeUnix,<span class="number">0</span>).Format(<span class="string">&quot;2006-01-02 15:04:05&quot;</span>)</span><br><span class="line"></span><br><span class="line">fmt.Println(formatTimeStr)   <span class="comment">//打印结果：2017-04-11 13:30:39</span></span><br></pre></td></tr></table></figure>
+<h3 id="时间字符串转时间-string-—-Time"><a href="#时间字符串转时间-string-—-Time" class="headerlink" title="时间字符串转时间(string  —&gt;  Time)"></a>时间字符串转时间(string  —&gt;  Time)</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">formatTimeStr=”<span class="number">2017</span><span class="number">-04</span><span class="number">-11</span> <span class="number">13</span>:<span class="number">33</span>:<span class="number">37</span>”</span><br><span class="line"> </span><br><span class="line">formatTime,err:=time.Parse(<span class="string">&quot;2006-01-02 15:04:05&quot;</span>,formatTimeStr)</span><br><span class="line"> </span><br><span class="line"><span class="keyword">if</span> err==<span class="literal">nil</span>&#123;</span><br><span class="line">    fmt.Println(formatTime) <span class="comment">//打印结果：2017-04-11 13:33:37 +0000 UTC</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="时间字符串转时间戳-string-—-int64"><a href="#时间字符串转时间戳-string-—-int64" class="headerlink" title="时间字符串转时间戳 (string —&gt;  int64)"></a>时间字符串转时间戳 (string —&gt;  int64)</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">比上面多一步，formatTime.Unix()即可</span><br></pre></td></tr></table></figure>
+<h3 id="时区处理"><a href="#时区处理" class="headerlink" title="时区处理"></a>时区处理</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">l,_ := time.LoadLocation(<span class="string">&quot;Asia/Shanghai&quot;</span>)</span><br><span class="line">fmt.Println(time.Now().In(l))</span><br><span class="line">l,_ = time.LoadLocation(<span class="string">&quot;America/Adak&quot;</span>)</span><br><span class="line">fmt.Println(time.Now().In(l))</span><br></pre></td></tr></table></figure>
+        <!-- 分类文章 -->
+        
+      </div>
+      <div class="post-content-inner-space">
+        
+          <div class="space-toc-main animate__animated  animate__fadeInUp">
+            <ol class="space-toc"><li class="space-toc-item space-toc-level-2"><a class="space-toc-link" href="#%E8%8E%B7%E5%8F%96%E5%BD%93%E5%89%8D%E6%97%B6%E9%97%B4"><span class="space-toc-text">获取当前时间</span></a></li><li class="space-toc-item space-toc-level-2"><a class="space-toc-link" href="#%E8%8E%B7%E5%8F%96%E5%BD%93%E5%89%8D%E6%97%B6%E9%97%B4%E6%88%B3"><span class="space-toc-text">获取当前时间戳</span></a></li><li class="space-toc-item space-toc-level-2"><a class="space-toc-link" href="#%E8%8E%B7%E5%8F%96%E5%BD%93%E5%89%8D%E6%97%B6%E9%97%B4%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%A0%BC%E5%BC%8F"><span class="space-toc-text">获取当前时间字符串格式</span></a></li><li class="space-toc-item space-toc-level-2"><a class="space-toc-link" href="#%E6%97%B6%E9%97%B4%E6%88%B3%E8%BD%AC%E6%97%B6%E9%97%B4%E5%AD%97%E7%AC%A6%E4%B8%B2-int64-%E2%80%94-string"><span class="space-toc-text">时间戳转时间字符串 (int64 —&gt;  string)</span></a></li></ol>
+           </div>
+        
+      </div>
+   </div>
+    <!-- 评论 -->
+    
+  </div>
+</article>
+  </div>
+</div>
+
+
+
+<!-- 如果是home模式的话，不在首页就显示footer，如果不是home模式的话 所有都显示footer -->
+
+  <div class="footer-outer animate__animated  animate__fadeInUp">
+    <div class="footer-inner">
+    <div class="footer-text">
+    <p>Power by Lyon.x</p>
+
+    </div>
+    <div class="footer-contact">
+    <ul class="footer-ul">
+        
+        <li class="footer-li">
+            <a href="https://github.com/lyonxh" target="_blank">
+                <i class="ri-github-line"></i>
+            </a>
+        </li>
+        
+        <li class="footer-li">
+            <a href="mailto:xoohoos@gmail.com" target="_blank">
+                <i class="ri-mail-line"></i>
+            </a>
+        </li>
+        
+    </ul>
+    </div>
+    </div>
+</div>
+
+
+
+
+
+
+<script src="/js/white.js"></script>
+
+
+
+</body>
+</html>
