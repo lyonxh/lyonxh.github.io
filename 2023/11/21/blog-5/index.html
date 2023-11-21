@@ -1,0 +1,326 @@
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>  K8s部署 |    Lyon.x</title>
+  <meta name="description" content="The Lives Of Lyon.x .">
+  <!-- 标签页图标 -->
+  
+
+  <!-- 图标库 -->
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@2.2.0/fonts/remixicon.css" rel="stylesheet">
+  <!-- 动画库 -->
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fushaolei/cdn-white@1.0/css/animate.css"/>
+  
+  <!-- css文件 -->
+  
+<link rel="stylesheet" href="/css/white.css">
+
+  <!-- 代码高亮 -->
+  
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+
+<body>
+
+<div class="menu-outer">
+    <div class="menu-inner">
+      <div class="menu-site-name  animate__animated  animate__fadeInUp">
+        <a href="/">
+          Lyon.x
+        </a>
+        
+      </div>
+      <div class="menu-group">
+        <ul class="menu-ul">
+        
+          <a href="/" class="nav-link">
+            <li class="menu-li  animate__animated  animate__fadeInUp">
+              HOME
+            </li>
+          </a>
+        
+          <a href="/archives" class="nav-link">
+            <li class="menu-li  animate__animated  animate__fadeInUp">
+              BLOG
+            </li>
+          </a>
+        
+        
+        
+          <li class="menu-li animate__animated  animate__fadeInUp" id="mobile-menu">
+            <i class="ri-menu-line"></i>
+          </li>
+        
+        </ul>
+
+      </div>
+
+    </div>
+</div>
+<div id="mobile-main" class="animate__animated  animate__fadeIn">
+  <div class="mobile-menu-inner">
+    <div class="mobile-menu-site-name animate__animated  animate__fadeInUp">
+      <a href="/">
+        Lyon.x
+      </a>
+    </div>
+    <div class="mobile-menu-group" id="mobile-close">
+      <i class="ri-close-line"></i>
+    </div>
+
+  </div>
+
+  <div class="mobile-menu-div">
+  
+    <a href="/" class="mobile-nav-link">
+      <div class="mobile-menu-child animate__animated  animate__fadeInUp">
+        <span>HOME</span>
+      </div>
+    </a>
+  
+    <a href="/archives" class="mobile-nav-link">
+      <div class="mobile-menu-child animate__animated  animate__fadeInUp">
+        <span>BLOG</span>
+      </div>
+    </a>
+  
+  
+  </div>
+
+
+</div>
+
+<div class="body-outer">
+  <div class="body-inner">
+    
+<article class="post-inner">
+  <div class="post-content-outer">
+    <div class="post-intro">
+      <div class="post-title animate__animated  animate__fadeInUp">k8s部署</div>
+      <div class="meta-intro animate__animated  animate__fadeInUp">11月 21 2023</div>
+      
+    </div>
+    <div class="post-content-inner">
+      <div class="post-content-inner-space">
+
+      </div>
+      <div class="post-content-main animate__animated  animate__fadeInUp">
+        <!-- top型目录 -->
+        
+        <h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>[kiosk@k8s-master | k8s-worker1 | k8s-worker2]$</p>
+<ol>
+<li><p>设置当前用户sudo免密 [选做]</p>
+<blockquote>
+<p>不想每次都输入密码 - 加速</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">当前用户的密码</span></span><br><span class="line">OS_PASS=ubuntu</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">缓存 sudo 密码 ubuntu</span></span><br><span class="line">echo $OS_PASS | sudo -v -S </span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">永久生效</span></span><br><span class="line">sudo tee /etc/sudoers.d/$USER &gt;/dev/null &lt;&lt;EOF</span><br><span class="line"><span class="meta prompt_">$</span><span class="language-bash">USER ALL=(ALL) NOPASSWD: ALL</span></span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line">cat /etc/sudoers.d/$USER</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>使用国内镜像仓库 [选做]</p>
+<blockquote>
+<p>软件安装 - 加速</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">if ! curl --connect-timeout 2 google.com &amp;&gt;/dev/null; then</span><br><span class="line">    # C. 国内</span><br><span class="line">    MIRROR_URL=http://mirror.nju.edu.cn/ubuntu</span><br><span class="line">    CODE_NAME=$(lsb_release -cs)</span><br><span class="line">    COMPONENT=&quot;main restricted universe multiverse&quot;</span><br><span class="line"></span><br><span class="line">    # 生成软件仓库源</span><br><span class="line">    sudo tee /etc/apt/sources.list &gt;/dev/null &lt;&lt;EOF</span><br><span class="line">deb $MIRROR_URL $CODE_NAME $COMPONENT</span><br><span class="line">deb $MIRROR_URL $CODE_NAME-updates $COMPONENT</span><br><span class="line">deb $MIRROR_URL $CODE_NAME-backports $COMPONENT</span><br><span class="line">deb $MIRROR_URL $CODE_NAME-security $COMPONENT</span><br><span class="line">EOF</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">cat /etc/apt/sources.list</span><br></pre></td></tr></table></figure></li>
+<li><p>安装相关软件 &lt;必做&gt;</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">Which services should be restarted?</span></span><br><span class="line">NFILE=/etc/needrestart/needrestart.conf</span><br><span class="line"></span><br><span class="line">sudo sed -i \</span><br><span class="line">    -e &#x27;/nrconf&#123;restart&#125;/&#123;s+i+a+;s+#++&#125;&#x27;  \</span><br><span class="line">    $NFILE</span><br><span class="line"></span><br><span class="line">grep nrconf&#123;restart&#125; $NFILE</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">手动更新</span></span><br><span class="line">sudo apt -y update</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 安装</span></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-	远程, ssh 免交互, 编辑文件, storageClass</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-	Tab 自动补全, nc, ping</span></span><br><span class="line">sudo apt -y install \</span><br><span class="line">    openssh-server sshpass vim nfs-common \</span><br><span class="line">    bash-completion netcat-openbsd iputils-ping</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>设置静态 IP &lt;必做&gt;</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">获取 IP</span></span><br><span class="line">NICP=$(ip a | awk &#x27;/inet / &#123;print $2&#125;&#x27; | grep -v ^127)</span><br><span class="line"></span><br><span class="line">if [ &quot;$(echo $NICP | wc -w)&quot; != &quot;1&quot; ]; then</span><br><span class="line">    select IP1 in $NICP; do</span><br><span class="line">        break</span><br><span class="line">    done</span><br><span class="line">else</span><br><span class="line">    IP1=$NICP</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">echo -e &quot; addresses: \e[1;34m$&#123;IP1&#125;\e[0;0m&quot;</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">获取网卡名</span></span><br><span class="line">NICN=$(ip a | awk &#x27;/^2:/ &#123;print $2&#125;&#x27; | sed &#x27;s/://&#x27;)</span><br><span class="line"></span><br><span class="line">echo -e &quot; ethernets: \e[1;34m$&#123;NICN&#125;\e[0;0m&quot;</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">获取网关</span></span><br><span class="line">NICG=$(ip route | awk &#x27;/^default/ &#123;print $3&#125;&#x27;)</span><br><span class="line"></span><br><span class="line">echo -e &quot; routes: \e[1;34m$&#123;NICG&#125;\e[0;0m&quot;</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">获取 DNS</span></span><br><span class="line">unset DNS; unset DN</span><br><span class="line">for i in 114.114.114.114 8.8.4.4 8.8.8.8; do</span><br><span class="line">    if nc -w 2 -zn $i 53 &amp;&gt;/dev/null; then</span><br><span class="line">        DNS1=$i</span><br><span class="line">        DNS=&quot;$DNS, $DNS1&quot;</span><br><span class="line">    fi</span><br><span class="line">done</span><br><span class="line"></span><br><span class="line">echo -e &quot; nameservers: \e[1;34m$&#123;DNS#, &#125;\e[0;0m&quot;</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">更新网卡配置文件</span></span><br><span class="line">NYML=/etc/netplan/00-installer-config.yaml</span><br><span class="line"></span><br><span class="line">sudo tee $NYML &gt;/dev/null &lt;&lt;EOF</span><br><span class="line">network:</span><br><span class="line">  ethernets:</span><br><span class="line">    $NICN:</span><br><span class="line">      dhcp4: false</span><br><span class="line">      addresses: [$IP1]</span><br><span class="line">      routes: </span><br><span class="line">      - to: default</span><br><span class="line">        via: $NICG</span><br><span class="line">      nameservers:</span><br><span class="line">        addresses: [$&#123;DNS#, &#125;]</span><br><span class="line">  version: 2</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line">cat $NYML</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">dns 解析文件链接</span></span><br><span class="line">sudo ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">active</span></span><br><span class="line">sudo netplan apply</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>编辑 hosts &lt;必做&gt;</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">显示 ip 地址和主机名，方便复制</span></span><br><span class="line">echo $(hostname -I) $(hostname)</span><br><span class="line">sudo tee -a /etc/hosts &gt;/dev/null &lt;&lt;EOF</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">K8s-cluster</span></span><br><span class="line">192.168.147.128 k8s-master</span><br><span class="line">192.168.147.129 k8s-worker1</span><br><span class="line">192.168.147.130 k8s-worker2</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line">cat /etc/hosts</span><br></pre></td></tr></table></figure></li>
+<li><p>设置 root 密码 [选做]</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">ROOT_PASS=ubuntu</span><br><span class="line"></span><br><span class="line">(echo $ROOT_PASS; echo $ROOT_PASS) \</span><br><span class="line">    | sudo passwd root</span><br><span class="line"></span><br><span class="line">echo PermitRootLogin yes \</span><br><span class="line">    | sudo tee -a /etc/ssh/sshd_config</span><br><span class="line"></span><br><span class="line">sudo systemctl restart sshd</span><br></pre></td></tr></table></figure></li>
+<li><p>ssh 免密 [选做]</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">生成 keypair</span></span><br><span class="line">ssh-keygen -f ~/.ssh/id_rsa -N &#x27;&#x27;</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">拷贝公钥</span></span><br><span class="line">ROOT_PASS=ubuntu</span><br><span class="line"></span><br><span class="line">NODES=$(egrep -v &#x27;^[a-f]|^:|^#|^$|^127&#x27; /etc/hosts | awk &#x27;&#123;print $2&#125;&#x27;)</span><br><span class="line"></span><br><span class="line">echo -e &quot;NODES: \e[1;34m$(echo $NODES)\e[0;0m&quot;</span><br><span class="line"></span><br><span class="line">for i in $NODES; do</span><br><span class="line">    for j in kiosk root; do</span><br><span class="line">        sshpass -p$ROOT_PASS \</span><br><span class="line">            ssh-copy-id -o StrictHostKeyChecking=no \</span><br><span class="line">                $j@$i</span><br><span class="line">    done</span><br><span class="line">done</span><br></pre></td></tr></table></figure></li>
+<li><p>禁用 swap &lt;必做&gt;</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">交换文件</span></span><br><span class="line">SWAPF=$(awk &#x27;/swap/ &#123;print $1&#125;&#x27; /etc/fstab)</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">立即禁用</span></span><br><span class="line">sudo swapoff $SWAPF</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">永久禁用</span></span><br><span class="line">sudo sed -i &#x27;/swap/d&#x27; /etc/fstab</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">删除交换文件</span></span><br><span class="line">sudo rm $SWAPF</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">确认</span></span><br><span class="line">free -h</span><br></pre></td></tr></table></figure></li>
+<li><p>扩容 &lt;必做&gt;</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">df -h / | egrep [0-9]+G</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">逻辑卷名</span></span><br><span class="line">LVN=$(sudo lvdisplay | awk &#x27;/Path/ &#123;print $3&#125;&#x27;)</span><br><span class="line"></span><br><span class="line">echo -e &quot; LV Name: \e[1;34m$&#123;LVN&#125;\e[0;0m&quot;</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">扩容</span></span><br><span class="line">sudo lvextend -r -l 100%PVS $LVN \</span><br><span class="line"><span class="meta prompt_">  &gt; </span><span class="language-bash">/dev/null</span></span><br><span class="line"></span><br><span class="line">df -h / | egrep [0-9]+G</span><br></pre></td></tr></table></figure></li>
+<li><p>模块支持 &lt;必做&gt;</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 安装</span></span></span><br><span class="line">sudo apt -y install bridge-utils</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">永久生效</span></span><br><span class="line">MFILE=/etc/modules-load.d/br.conf</span><br><span class="line"></span><br><span class="line">sudo tee $MFILE &gt;/dev/null &lt;&lt;EOF</span><br><span class="line">br_netfilter</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line">cat $MFILE</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">立即生效</span></span><br><span class="line">sudo modprobe br_netfilter</span><br><span class="line"></span><br><span class="line">lsmod | grep br</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 内核支持</span></span></span><br><span class="line">sudo tee /etc/sysctl.d/k8s.conf &gt;/dev/null &lt;&lt;EOF</span><br><span class="line">net.ipv4.ip_forward=1</span><br><span class="line">vm.swappiness=0</span><br><span class="line">vm.overcommit_memory=1</span><br><span class="line">vm.panic_on_oom=0</span><br><span class="line">EOF</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">立即生效</span></span><br><span class="line">sudo sysctl -p /etc/sysctl.d/k8s.conf</span><br><span class="line"></span><br><span class="line">sudo sysctl -a | grep &#x27;ip_forward &#x27;</span><br></pre></td></tr></table></figure></li>
+<li><p>安装运行时 &lt;必做&gt; </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 创建镜像仓库文件</span></span></span><br><span class="line">AFILE=/etc/apt/sources.list.d/docker.list</span><br><span class="line"></span><br><span class="line">if ! curl --connect-timeout 2 google.com &amp;&gt;/dev/null; then</span><br><span class="line">    # C. 国内</span><br><span class="line">    AURL=https://mirror.nju.edu.cn/docker-ce</span><br><span class="line">else</span><br><span class="line">    # A. 国外</span><br><span class="line">    AURL=https://download.docker.com</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">sudo tee $AFILE &gt;/dev/null &lt;&lt;EOF</span><br><span class="line">deb $AURL/linux/ubuntu $(lsb_release -cs) stable</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line">cat $AFILE</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">导入公钥</span></span><br><span class="line">curl -fsSL https://download.docker.com/linux/ubuntu/gpg \</span><br><span class="line">    | sudo apt-key add -</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">W: Key is stored <span class="keyword">in</span> legacy trusted.gpg keyring</span></span><br><span class="line">sudo cp /etc/apt/trusted.gpg /etc/apt/trusted.gpg.d</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">更新索引</span></span><br><span class="line">sudo apt-get update</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">安装 containerd</span></span><br><span class="line">sudo apt-get install containerd.io</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">生成默认配置文件</span></span><br><span class="line">containerd config default \</span><br><span class="line">    | sudo tee /etc/containerd/config.toml &gt;/dev/null</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 修改配置文件</span></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">	<span class="string">&quot;alpine&quot;</span></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">	376ms  https://docker.nju.edu.cn</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">	623ms  http://hub-mirror.c.163.com</span> </span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">	10.97s https://docker.mirrors.ustc.edu.cn</span></span><br><span class="line">sudo sed -i \</span><br><span class="line">    -e &#x27;/SystemdCgroup/s+false+true+&#x27; \</span><br><span class="line">    /etc/containerd/config.toml</span><br><span class="line"></span><br><span class="line">if ! curl --connect-timeout 2 google.com &amp;&gt;/dev/null; then</span><br><span class="line">    # C. 国内</span><br><span class="line">    REISTRY_OLD=registry.k8s.io</span><br><span class="line">    REGISTRY_NEW=registry.aliyuncs.com/google_containers</span><br><span class="line">    M1=&#x27;[plugins.&quot;io.containerd.grpc.v1.cri&quot;.registry.mirrors.&quot;docker.io&quot;]&#x27;</span><br><span class="line">    M2=&#x27;endpoint = [&quot;https://docker.nju.edu.cn&quot;]&#x27;</span><br><span class="line">  </span><br><span class="line">    sudo sed -i \</span><br><span class="line">        -e &quot;/sandbox_image/s+$REISTRY_OLD+$REGISTRY_NEW+&quot; \</span><br><span class="line">        -e &quot;/registry.mirrors/a\        $M1&quot; \</span><br><span class="line">        -e &quot;/registry.mirrors/a\          $M2&quot; \</span><br><span class="line">        /etc/containerd/config.toml </span><br><span class="line">fi</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">服务重启</span></span><br><span class="line">sudo systemctl restart containerd</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 下载 crictl 压缩包</span></span></span><br><span class="line">if ! curl --connect-timeout 2 google.com &amp;&gt;/dev/null; then</span><br><span class="line">    # C. 国内</span><br><span class="line">    CURL=http://k8s.ruitong.cn:8080/K8s</span><br><span class="line">else</span><br><span class="line">    # A. 国外</span><br><span class="line">    CURL=https://github.com/kubernetes-sigs/cri-tools/releases/download/v1.28.0</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">TFILE=crictl-v1.28.0-linux-amd64.tar.gz</span><br><span class="line"></span><br><span class="line">curl -# -o $TFILE $CURL/$TFILE</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">解压 crictl</span></span><br><span class="line">tar -xf $TFILE</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">安装 crictl 命令</span></span><br><span class="line">sudo cp crictl /usr/bin/</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">创建 crictl 配置文件</span></span><br><span class="line">sudo tee /etc/crictl.yaml &lt;&lt;EOF &gt;/dev/null</span><br><span class="line">runtime-endpoint: unix:///run/containerd/containerd.sock</span><br><span class="line">image-endpoint: unix:///run/containerd/containerd.sock</span><br><span class="line">timeout: 10</span><br><span class="line">debug: false</span><br><span class="line">pull-image-on-create: true</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line">sudo usermod -aG root $USER</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="安装-K8s"><a href="#安装-K8s" class="headerlink" title="安装 K8s"></a>安装 K8s</h2><p>[kiosk@k8s-master | k8s-worker1 | k8s-worker2]$</p>
+<ol start="12">
+<li>安装 kubeadm、kubelet 和 kubectl<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">更新 apt 包索引并安装使用 Kubernetes apt 仓库所需要的包</span></span><br><span class="line">sudo apt -y install apt-transport-https ca-certificates curl</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 添加 Kubernetes apt 仓库</span></span></span><br><span class="line">sudo mkdir /etc/apt/keyrings &amp;&gt;/dev/null</span><br><span class="line"></span><br><span class="line">KFILE=/etc/apt/keyrings/kubernetes-archive-keyring.gpg</span><br><span class="line"></span><br><span class="line">if ! curl --connect-timeout 2 google.com &amp;&gt;/dev/null; then</span><br><span class="line">    # C. 国内</span><br><span class="line">    KURL=http://k8s.ruitong.cn:8080/K8s</span><br><span class="line">    AURL=https://mirror.nju.edu.cn/kubernetes/apt</span><br><span class="line">else</span><br><span class="line">    # A. 国外</span><br><span class="line">    KURL=https://packages.cloud.google.com</span><br><span class="line">    AURL=https://apt.kubernetes.io/</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">sudo curl -fsSLo $KFILE $KURL/apt/doc/apt-key.gpg</span><br><span class="line"></span><br><span class="line">sudo tee /etc/apt/sources.list.d/kubernetes.list &lt;&lt;EOF &gt;/dev/null</span><br><span class="line">deb [signed-by=$KFILE] $AURL kubernetes-xenial main</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line">sudo apt -y update</span><br></pre></td></tr></table></figure></li>
+</ol>
+<ul>
+<li>CKA，CKS v1.27.1<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">官方考试版本-CKA</span></span><br><span class="line">CKx_URL=https://training.linuxfoundation.cn/certificates/1</span><br><span class="line"></span><br><span class="line">:&lt;&lt;EOF</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">官方考试版本-CKS</span></span><br><span class="line">CKx_URL=https://training.linuxfoundation.cn/certificates/16</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line">KV=$(curl -s $CKx_URL | grep -Eo 软件版本.*v[0-9].[0-9]+ | awk &#x27;&#123;print $NF&#125;&#x27;)</span><br><span class="line"></span><br><span class="line">echo -e &quot; The exam is based on Kubernetes: \e[1;34m$&#123;KV#v&#125;\e[0;0m&quot;</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">列出所有小版本</span></span><br><span class="line">sudo apt-cache madison kubelet | grep $&#123;KV#v&#125;</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">安装 kubelet、kubeadm 和 kubectl 考试版本</span></span><br><span class="line">sudo apt -y install \</span><br><span class="line">    kubelet=$&#123;KV#v&#125;.1-00 \</span><br><span class="line">    kubeadm=$&#123;KV#v&#125;.1-00 \</span><br><span class="line">    kubectl=$&#123;KV#v&#125;.1-00</span><br></pre></td></tr></table></figure></li>
+<li>CKAD v1.26.1<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">官方考试版本 - CKAD</span></span><br><span class="line">CKx_URL=https://training.linuxfoundation.cn/certificates/4</span><br><span class="line"></span><br><span class="line">KV=$(curl -s $CKx_URL | grep -Eo 软件版本.*v[0-9].[0-9]+ | awk &#x27;&#123;print $NF&#125;&#x27;)</span><br><span class="line"></span><br><span class="line">echo -e &quot; The exam is based on Kubernetes: \e[1;34m$&#123;KV#v&#125;\e[0;0m&quot;</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">列出所有小版本</span></span><br><span class="line">sudo apt-cache madison kubelet | grep $&#123;KV#v&#125;</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">安装 kubelet、kubeadm 和 kubectl 考试版本</span></span><br><span class="line">sudo apt -y install \</span><br><span class="line">    kubelet=$&#123;KV#v&#125;.1-00 \</span><br><span class="line">    kubeadm=$&#123;KV#v&#125;.1-00 \</span><br><span class="line">    kubectl=$&#123;KV#v&#125;.1-00</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">锁定版本</span></span><br><span class="line">sudo apt-mark hold kubelet kubeadm kubectl</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p>[kiosk@k8s-master]$<br>13. 初始化</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">生成初始文件</span></span><br><span class="line">sudo kubeadm config print init-defaults \</span><br><span class="line">    &gt; kubeadm-config.yaml</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">IP 地址</span></span><br><span class="line">NICP=$(ip a | awk &#x27;/inet / &#123;print $2&#125;&#x27; | grep -v ^127 | sed &#x27;s+/.*++&#x27;)</span><br><span class="line"></span><br><span class="line">if [ &quot;$(echo $NICP | wc -w)&quot; != &quot;1&quot; ]; then</span><br><span class="line">    select IP1 in $NICP; do</span><br><span class="line">        break</span><br><span class="line">    done</span><br><span class="line">else</span><br><span class="line">    IP1=$NICP</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">echo -e &quot; advertiseAddress: \e[1;34m$&#123;IP1&#125;\e[0;0m&quot;</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">kubeadm-config.yaml</span></span><br><span class="line">sudo sed -i \</span><br><span class="line">    -e &quot;/advertiseAddress/s+:.*+: $IP1+&quot; \</span><br><span class="line">    -e &quot;/name/s+:.*+: $(hostname -s)+&quot; \</span><br><span class="line">    -e &quot;/clusterName/s+:.*+: ck8s+&quot; \</span><br><span class="line">    kubeadm-config.yaml</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">手动拉取镜像 [必选]</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">kubeadm init 时，会自动拉取</span></span><br><span class="line">if ! curl --connect-timeout 2 google.com &amp;&gt;/dev/null; then</span><br><span class="line">    # C. 国内</span><br><span class="line">    RURL=registry.aliyuncs.com/google_containers</span><br><span class="line">    </span><br><span class="line">    sudo kubeadm config images pull \</span><br><span class="line">        --image-repository $RURL \</span><br><span class="line">        --kubernetes-version $&#123;KV#v&#125;.1</span><br><span class="line">    </span><br><span class="line">    sudo sed -i \</span><br><span class="line">        -e &quot;/imageRepository/s+:.*+: $RURL+&quot; \</span><br><span class="line">        kubeadm-config.yaml</span><br><span class="line">fi</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">验证+k8s</span></span><br><span class="line">sudo crictl images</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">验证-k8s</span></span><br><span class="line">sudo ctr -n k8s.io image ls</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">使用初始文件，初始化集群</span></span><br><span class="line">sudo kubeadm init \</span><br><span class="line">    --config kubeadm-config.yaml</span><br></pre></td></tr></table></figure>
+<ol start="14">
+<li>配置文件 - Client<blockquote>
+<p>参考 init 的输出提示</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">创建目录</span></span><br><span class="line">mkdir -p ~/.kube</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">user 复制配置文件</span></span><br><span class="line">sudo \cp /etc/kubernetes/admin.conf \</span><br><span class="line">    ~/.kube/config</span><br><span class="line"></span><br><span class="line">sudo chown $(id -u):$(id -g) ~/.kube/config</span><br><span class="line"></span><br><span class="line">ll ~/.kube/config | grep $USER</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">root 变量</span></span><br><span class="line">sudo tee -a ~root/.bashrc &gt;/dev/null &lt;&lt;EOF</span><br><span class="line">export KUBECONFIG=/etc/kubernetes/admin.conf</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line">sudo grep KUBECONFIG ~root/.bashrc</span><br></pre></td></tr></table></figure></li>
+<li>创建网络</li>
+</ol>
+<blockquote>
+<p>参考 init 的输出提示<br><a target="_blank" rel="noopener" href="https://www.tigera.io/project-calico/">https://www.tigera.io/project-calico/</a> Home -&gt; Calico Open Source Install -&gt; CalicoKubernetesSelf-managed on-premises Install Calico -&gt; Manifest -&gt; Install Calico with Kubernetes API datastore, 50 nodes or less</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/calico.yaml -O</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">CFILE=calico/v3.26.1/manifests/calico.yaml</span><br><span class="line"></span><br><span class="line">if ! curl --connect-timeout 2 google.com &amp;&gt;/dev/null; then</span><br><span class="line">    # C. 国内</span><br><span class="line">    CURL=http://k8s.ruitong.cn:8080/K8s</span><br><span class="line">else</span><br><span class="line">    # A. 国外</span><br><span class="line">    CURL=https://raw.githubusercontent.com/projectcalico</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">kubectl apply -f $CURL/$CFILE</span><br></pre></td></tr></table></figure>
+<ol start="16">
+<li>命令补全 - Client [建议]<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看帮助</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">kubectl completion --<span class="built_in">help</span></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 立即生效</span></span></span><br><span class="line">source &lt;(kubectl completion bash)</span><br><span class="line">    </span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"><span class="comment"># 永久生效</span></span></span><br><span class="line">mkdir ~/.kube 2&gt;/dev/null</span><br><span class="line"></span><br><span class="line">kubectl completion bash \</span><br><span class="line">    &gt; ~/.kube/completion.bash.inc</span><br><span class="line"></span><br><span class="line">tee -a ~/.bashrc &lt;&lt;EOF &gt;/dev/null</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">Kubectl shell completdion</span></span><br><span class="line">source ~/.kube/completion.bash.inc</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line">source ~/.bashrc</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">kubectl &lt;Tab&gt;&lt;Tab&gt;</span></span><br></pre></td></tr></table></figure></li>
+<li>命令别名 - Client[建议]<blockquote>
+<p>参考网址 <a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/reference/kubectl/cheatsheet/">https://kubernetes.io/zh-cn/docs/reference/kubectl/cheatsheet/</a></p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">永久生效</span></span><br><span class="line">tee -a ~/.bashrc &lt;&lt;EOF &gt;/dev/null</span><br><span class="line">alias k=&#x27;kubectl&#x27;</span><br><span class="line">complete -F __start_kubectl k</span><br><span class="line">EOF</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">立即生效</span></span><br><span class="line">source ~/.bashrc</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">k &lt;Tab&gt;&lt;Tab&gt;</span></span><br></pre></td></tr></table></figure>
+[kiosk@k8s-worker1 | k8s-worker2]$</li>
+<li>加入集群<blockquote>
+<ul>
+<li>参考 init 的输出提示 </li>
+<li>找不到提示，参照附录 A1</li>
+</ul>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo \</span><br><span class="line">    kubeadm join 192.168.147.128:6443 --token abcdef.0123456789abcdef \</span><br><span class="line">	--discovery-token-ca-cert-hash sha256:49ff7a97c017153baee67c8f44fa84155b8cf06ca8cee067f766ec252cb8d1ac</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="确认环境正常"><a href="#确认环境正常" class="headerlink" title="确认环境正常"></a>确认环境正常</h2><p>[kiosk@k8s-master]</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">kubectl get nodes</span></span><br><span class="line">NAME          STATUS   ROLES           AGE     VERSION</span><br><span class="line">k8s-master    Ready    control-plane   3m42s   v1.27.1</span><br><span class="line">k8s-worker1   Ready    &lt;none&gt;          60s     v1.27.1</span><br><span class="line">k8s-worker2   Ready    &lt;none&gt;          54s     v1.27.1</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">kubectl get pod -A</span></span><br><span class="line">NAMESPACE     NAME                                       READY   STATUS    RESTARTS   AGE</span><br><span class="line">kube-system   calico-kube-controllers-786b679988-jqmtn   1/1     Running   0          2m58s</span><br><span class="line">kube-system   calico-node-4sbwf                          1/1     Running   0          71s</span><br><span class="line">kube-system   calico-node-cfq42                          1/1     Running   0          65s</span><br><span class="line">kube-system   calico-node-xgmqv                          1/1     Running   0          2m58s</span><br><span class="line">kube-system   coredns-7bdc4cb885-grj7m                   1/1     Running   0          3m46s</span><br><span class="line">kube-system   coredns-7bdc4cb885-hjdkp                   1/1     Running   0          3m46s</span><br><span class="line">kube-system   etcd-k8s-master                            1/1     Running   0          3m50s</span><br><span class="line">kube-system   kube-apiserver-k8s-master                  1/1     Running   0          3m50s</span><br><span class="line">kube-system   kube-controller-manager-k8s-master         1/1     Running   0          3m50s</span><br><span class="line">kube-system   kube-proxy-2cgvn                           1/1     Running   0          3m46s</span><br><span class="line">kube-system   kube-proxy-2zh5k                           1/1     Running   0          65s</span><br><span class="line">kube-system   kube-proxy-nd5z8                           1/1     Running   0          71s</span><br><span class="line">kube-system   kube-scheduler-k8s-master                  1/1     Running   0          3m50s</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">kubectl get componentstatuses</span></span><br><span class="line">Warning: v1 ComponentStatus is deprecated in v1.19+</span><br><span class="line">NAME                 STATUS    MESSAGE                         ERROR</span><br><span class="line">etcd-0               Healthy   &#123;&quot;health&quot;:&quot;true&quot;,&quot;reason&quot;:&quot;&quot;&#125;</span><br><span class="line">controller-manager   Healthy   ok</span><br><span class="line">scheduler            Healthy   ok</span><br></pre></td></tr></table></figure>
+
+<h2 id="A-附录"><a href="#A-附录" class="headerlink" title="A. 附录"></a>A. 附录</h2><h3 id="A1-新节点加入-K8s-集群"><a href="#A1-新节点加入-K8s-集群" class="headerlink" title="A1. 新节点加入 K8s 集群"></a>A1. 新节点加入 K8s 集群</h3><blockquote>
+<ul>
+<li>查看 kubeadm init 命令的输出</li>
+<li>使用 kubeadm token create 命令重新创建<br>[kiosk@k8s-master]$</li>
+</ul>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">kubeadm token create --print-join-command</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h3 id="A2-kubeadm-reset"><a href="#A2-kubeadm-reset" class="headerlink" title="A2. kubeadm reset"></a>A2. kubeadm reset</h3><blockquote>
+<p>还原通过&#x3D;&#x3D;kubeadm init&#x3D;&#x3D;或&#x3D;&#x3D;kubeadm join&#x3D;&#x3D;对此主机所做的更改</p>
+</blockquote>
+<p>[kiosk@k8s-master]$</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">echo y | sudo kubeadm reset</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h3 id="A3-国内需要加速"><a href="#A3-国内需要加速" class="headerlink" title="A3. 国内需要加速"></a>A3. 国内需要加速</h3><table>
+<thead>
+<tr>
+<th align="center">ID</th>
+<th align="center">国内</th>
+<th align="center">国外</th>
+<th align="center">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">1</td>
+<td align="center"><a target="_blank" rel="noopener" href="http://mirror.nju.edu.cn/ubuntu">http://mirror.nju.edu.cn/ubuntu</a></td>
+<td align="center">默认</td>
+<td align="center">系统软件仓库</td>
+</tr>
+<tr>
+<td align="center">2</td>
+<td align="center"><a target="_blank" rel="noopener" href="https://mirror.nju.edu.cn/docker-ce/linux/ubuntu">https://mirror.nju.edu.cn/docker-ce/linux/ubuntu</a></td>
+<td align="center"><a target="_blank" rel="noopener" href="https://download.docker.com/linux/ubuntu">https://download.docker.com/linux/ubuntu</a></td>
+<td align="center">运行时仓库</td>
+</tr>
+<tr>
+<td align="center">3</td>
+<td align="center">registry.aliyuncs.com&#x2F;google_containers</td>
+<td align="center">registry.k8s.io</td>
+<td align="center">google容器镜像仓库</td>
+</tr>
+<tr>
+<td align="center">4</td>
+<td align="center"><a target="_blank" rel="noopener" href="https://docker.nju.edu.cn/">https://docker.nju.edu.cn/</a></td>
+<td align="center">默认</td>
+<td align="center">docker容器镜像仓库</td>
+</tr>
+<tr>
+<td align="center">5</td>
+<td align="center"><a target="_blank" rel="noopener" href="http://k8s.ruitong.cn:8080/K8s">http://k8s.ruitong.cn:8080/K8s</a></td>
+<td align="center"><a target="_blank" rel="noopener" href="https://github.com/kubernetes-sigs/cri-tools/releases/download/v1.24.2">https://github.com/kubernetes-sigs/cri-tools/releases/download/v1.24.2</a></td>
+<td align="center">crictl 命令</td>
+</tr>
+<tr>
+<td align="center">6</td>
+<td align="center"><a target="_blank" rel="noopener" href="https://mirror.nju.edu.cn/kubernetes/apt/">https://mirror.nju.edu.cn/kubernetes/apt/</a></td>
+<td align="center"><a target="_blank" rel="noopener" href="https://apt.kubernetes.io/">https://apt.kubernetes.io/</a></td>
+<td align="center">kubeadm, kubelet 软件仓库</td>
+</tr>
+<tr>
+<td align="center">7</td>
+<td align="center"><a target="_blank" rel="noopener" href="http://k8s.ruitong.cn:8080/K8s/calico/v3.25.0/manifests">http://k8s.ruitong.cn:8080/K8s/calico/v3.25.0/manifests</a></td>
+<td align="center"><a target="_blank" rel="noopener" href="https://raw.githubusercontent.com/projectcalico/calico/v3.25.0/manifests">https://raw.githubusercontent.com/projectcalico/calico/v3.25.0/manifests</a></td>
+<td align="center">calico.yaml 文件</td>
+</tr>
+</tbody></table>
+<h3 id="A4-Err1"><a href="#A4-Err1" class="headerlink" title="A4 . Err1"></a>A4 . Err1</h3><blockquote>
+<p>The connection to the server localhost:8080 was refused - did you specify the right host or port?</p>
+</blockquote>
+<p>[kiosk@k8s-worker2]$</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mkdir ~/.kube</span><br><span class="line"></span><br><span class="line">scp root@k8s-master:/etc/kubernetes/admin.conf \</span><br><span class="line">    ~/.kube/config</span><br><span class="line"></span><br><span class="line">kubectl get node</span><br></pre></td></tr></table></figure>
+
+<h3 id="A5-RHEL布署"><a href="#A5-RHEL布署" class="headerlink" title="A5. RHEL布署"></a>A5. RHEL布署</h3><blockquote>
+<ul>
+<li>关闭 firewalld</li>
+<li>关闭 SELinux</li>
+</ul>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">firewalld</span></span><br><span class="line">systemctl disable --now firewalld</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">SELinux</span></span><br><span class="line">sed -i &#x27;/^SELINUX=/s/=.*/=disabled/&#x27; \</span><br><span class="line">    /etc/selinux/config</span><br><span class="line"></span><br><span class="line">reboot</span><br></pre></td></tr></table></figure>
+
+        <!-- 分类文章 -->
+        
+      </div>
+      <div class="post-content-inner-space">
+        
+          <div class="space-toc-main animate__animated  animate__fadeInUp">
+            <ol class="space-toc"><li class="space-toc-item space-toc-level-2"><a class="space-toc-link" href="#%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C"><span class="space-toc-text">准备工作</span></a></li><li class="space-toc-item space-toc-level-2"><a class="space-toc-link" href="#%E5%AE%89%E8%A3%85-K8s"><span class="space-toc-text">安装 K8s</span></a></li><li class="space-toc-item space-toc-level-2"><a class="space-toc-link" href="#%E7%A1%AE%E8%AE%A4%E7%8E%AF%E5%A2%83%E6%AD%A3%E5%B8%B8"><span class="space-toc-text">确认环境正常</span></a></li><li class="space-toc-item space-toc-level-2"><a class="space-toc-link" href="#A-%E9%99%84%E5%BD%95"><span class="space-toc-text">A. 附录</span></a></li></ol>
+           </div>
+        
+      </div>
+   </div>
+    <!-- 评论 -->
+    
+  </div>
+</article>
+  </div>
+</div>
+
+
+
+<!-- 如果是home模式的话，不在首页就显示footer，如果不是home模式的话 所有都显示footer -->
+
+  <div class="footer-outer animate__animated  animate__fadeInUp">
+    <div class="footer-inner">
+    <div class="footer-text">
+    <p>Power by Lyon.x</p>
+
+    </div>
+    <div class="footer-contact">
+    <ul class="footer-ul">
+        
+        <li class="footer-li">
+            <a href="https://github.com/lyonxh" target="_blank">
+                <i class="ri-github-line"></i>
+            </a>
+        </li>
+        
+        <li class="footer-li">
+            <a href="mailto:xoohoos@gmail.com" target="_blank">
+                <i class="ri-mail-line"></i>
+            </a>
+        </li>
+        
+    </ul>
+    </div>
+    </div>
+</div>
+
+
+
+
+
+
+<script src="/js/white.js"></script>
+
+
+
+</body>
+</html>
